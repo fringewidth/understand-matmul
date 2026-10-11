@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where 9/4 Comes From</title>
+<meta name="description" content="An interactive, high-school-level walk through the 2026 proof that the matrix multiplication exponent is at most 9/4.">
+<meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10131c" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230b7a61%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Georgia,serif%22%3E%CF%89%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['html']},
+    macros: {
+      MM: '\\mathrm{MM}',
+      Dot: '\\mathrm{Dot}',
+      Poly: '\\mathrm{Poly}',
+      X: ['\\class{lx}{#1}', 1],
+      Y: ['\\class{ly}{#1}', 1],
+      Z: ['\\class{lz}{#1}', 1],
+      O: ['\\class{lo}{#1}', 1]
+    }
+  },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg-full.js" async></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="here" id="here"><small>00</small>Start</div>
+    <span class="score-pill" id="scorePill">0 / 0 quizzes</span>
+    <button class="btn small" id="tocBtn" aria-expanded="false" aria-controls="toc">Chapters</button>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+<div class="sheet-backdrop" id="tocBackdrop" hidden></div>
+<nav class="sheet" id="toc" hidden aria-label="Chapters">
+  <div class="sheet-inner">
+    <h3>Chapters</h3>
+    <ol id="tocList"></ol>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ================================================================ HERO -->
+<section class="hero chapter" id="start" data-title="Start" data-num="00">
+  <p class="eyebrow">An interactive guide &middot; October 2026</p>
+  <h1>Where does <span class="frac">9/4</span> come from?</h1>
+  <p class="lede">On October 2, 2026, OpenAI posted a short proof. It says that two big square tables of numbers (matrices) can be multiplied with roughly \(n^{9/4} = n^{2.25}\) steps. (More exactly: \(n^{2.25 + \varepsilon}\) steps, for any tiny extra \(\varepsilon\).) The record before that was about \(n^{2.371}\), and it had moved very slowly for 36 years.</p>
+  <p>This page explains where the number 9/4 comes from. We start from school algebra and build every idea we need. You can play with each idea, and short quizzes let you check yourself. Plan for about an hour. You need exponents, polynomials, sums written with \(\sum\), a little about logarithms, and the basics of complex numbers (\(a + bi\)).</p>
+
+  <figure class="fig" id="recordFig">
+    <div class="fig-title"><span>The race for &omega;</span><span id="rcRange">1966 to 2026</span></div>
+    <div id="recordChart"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn small" id="rcAll" aria-pressed="true">All years</button>
+      <button class="btn small" id="rcZoom" aria-pressed="false">Zoom: 2019 to 2026</button>
+    </div>
+    <div class="readout" id="recordInfo" aria-live="polite"></div>
+    <figcaption class="fig-cap">Each dot is a new record for the exponent &omega;. Lower is faster. Tap a dot to see who set it. The dashed line at 2 is a floor that no method can go below.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <span class="tag">The whole proof in five steps</span>
+    <ol class="plan">
+      <li><div>We measure the speed of matrix multiplication with one number, called &omega; (the Greek letter omega).</div></li>
+      <li><div>We build &ldquo;meters&rdquo; that give a difficulty score to any multiplication task. A theorem of Volker Strassen says this: if every meter gives matrix multiplication a low score, then a fast method exists.</div></li>
+      <li><div>We point the meters at a different task: multiplying two polynomials. That task is cheap, so its score has a <strong>ceiling</strong>.</div></li>
+      <li><div>A new machine from the paper gives two new rules. These rules show that the same score must also grow fast. That gives a <strong>floor</strong>.</div></li>
+      <li><div>If a meter scored matrix multiplication above \(n^{9/4}\), the floor would rise above the ceiling. That is impossible. So every meter scores at most \(n^{9/4}\), and \(\omega \le 9/4\).</div></li>
+    </ol>
+  </div>
+  <p>Do not worry if these steps mean little now. Each chapter explains one piece. At the end, we come back to this list, and every word in it will make sense.</p>
+</section>
+
+<!-- ================================================================ 1 -->
+<section class="chapter" id="school" data-title="The school method" data-num="01">
+  <p class="chapnum">Chapter 1</p>
+  <h2>Multiplying matrices the school way</h2>
+  <p>A <strong>matrix</strong> is a square grid of numbers. When we multiply two matrices \(A\) and \(B\), we get a third matrix \(C\). Each entry of \(C\) uses one <span class="lx">row of A</span> and one <span class="ly">column of B</span>. We multiply the matching pairs and add the results.</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Tap any entry of C</span><span id="mmCount">0 multiplications</span></div>
+    <div class="mat-row" id="mmRow"></div>
+    <div class="readout" id="mmCalc" aria-live="polite"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="mmPlay">Compute all of C</button>
+      <button class="btn" id="mmNew">New numbers</button>
+    </div>
+    <figcaption class="fig-cap">Each of the 9 entries of C needs 3 multiplications. That makes 27 in total for 3&times;3 matrices.</figcaption>
+  </figure>
+
+  <p>For \(n \times n\) matrices, the answer has \(n^2\) entries. Each entry needs \(n\) multiplications. So the school method uses</p>
+  \[ n \times n \times n = n^3 \text{ multiplications.} \]
+  <p>That grows fast. If you double \(n\), the work grows 8 times. Computers multiply huge matrices all the time: in graphics, in physics simulations, and inside every modern AI model. So people want to know: what is the best possible growth?</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>How the exponent changes the work</span></div>
+    <label class="slider"><span>size n</span><input type="range" id="sizeN" min="1" max="5" step="0.01" value="4"><output id="sizeNOut">10,000</output></label>
+    <div class="bars" id="sizeBars" style="margin-top:12px"></div>
+    <figcaption class="fig-cap">Bars use a log scale, so each equal step is 10 times more work. Times assume 1 billion multiplications per second and ignore all other costs. The real fast methods have large hidden costs. Here we compare only how the work grows.</figcaption>
+  </figure>
+
+  <div class="quiz" data-quiz="q1"></div>
+</section>
+
+<!-- ================================================================ 2 -->
+<section class="chapter" id="strassen" data-title="Strassen's seven" data-num="02">
+  <p class="chapnum">Chapter 2</p>
+  <h2>Strassen&rsquo;s seven</h2>
+  <p>Here is a warm-up. To multiply two complex numbers, you can write</p>
+  \[ (a + bi)(c + di) = (ac - bd) + (ad + bc)\,i. \]
+  <p>That uses 4 multiplications: \(ac\), \(bd\), \(ad\), \(bc\). Carl Friedrich Gauss saw that 3 are enough. Compute</p>
+  \[ k_1 = c(a + b), \quad k_2 = a(d - c), \quad k_3 = b(c + d). \]
+  <p>Then the real part is \(k_1 - k_3\) and the imaginary part is \(k_1 + k_2\). Check it yourself with the algebra. We used more additions and fewer multiplications. That trade is the main idea of this whole subject.</p>
+
+  <h3>Seven products for a 2&times;2 matrix</h3>
+  <p>In 1969, Volker Strassen found the same kind of trick for 2&times;2 matrices. The school method needs 8 multiplications. Strassen&rsquo;s method needs 7. Press the button to try it with new numbers.</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Strassen&rsquo;s recipe, checked live</span></div>
+    <div class="mat-row" id="stRow"></div>
+    <div class="terms" id="stProducts" style="margin-top:12px"></div>
+    <div class="readout" id="stResult"></div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="stNew">New numbers</button></div>
+    <figcaption class="fig-cap">Seven multiplications M1 to M7. Then the four entries of C come from additions and subtractions only.</figcaption>
+  </figure>
+
+  <h3>Why one saved multiplication matters</h3>
+  <p>Saving 1 out of 8 looks small. The power comes from <strong>recursion</strong>. A 4&times;4 matrix is a 2&times;2 matrix whose entries are 2&times;2 blocks. Strassen&rsquo;s formulas still work on blocks. (They never swap the order of a product, so they work even when the &ldquo;numbers&rdquo; are matrices.) So a 4&times;4 product needs 7 block products. Each block product is a 2&times;2 product, which needs 7. That is \(7 \times 7 = 49\) instead of \(64\).</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Recursion: 8 to the k versus 7 to the k</span></div>
+    <label class="slider"><span>levels k</span><input type="range" id="recK" min="1" max="10" step="1" value="3"><output id="recKOut">3</output></label>
+    <div class="bars" id="recBars" style="margin-top:12px"></div>
+  </figure>
+
+  <p>For matrices of size \(n = 2^k\), Strassen uses \(7^k\) multiplications. We want this as a power of \(n\). Since \(7 = 2^{2.807\ldots}\), we get \(7^k = (2^k)^{2.807} = n^{2.807}\). The exponent dropped from 3 to about 2.807.</p>
+
+  <div class="rulecard">
+    <span class="tag">The recursion rule</span>
+    <p>Suppose you can multiply \(u \times u\) matrices with \(r\) multiplications. Then you can multiply \(n \times n\) matrices with about \(n^{e}\) multiplications, where</p>
+    \[ e = \log_u r \quad\text{(the power that turns } u \text{ into } r\text{).} \]
+  </div>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Exponent calculator</span></div>
+    <label class="slider"><span>block size u</span><input type="range" id="expU" min="2" max="12" step="1" value="2"><output id="expUOut">2</output></label>
+    <label class="slider"><span>products r</span><input type="range" id="expR" min="4" max="8" step="1" value="7"><output id="expROut">7</output></label>
+    <div id="expScale" style="margin-top:8px"></div>
+    <div class="readout" id="expOut"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn small" data-u="2" data-r="7">Strassen 1969: 2, 7</button>
+      <button class="btn small" data-u="3" data-r="23">Laderman 1976: 3, 23</button>
+      <button class="btn small" data-u="4" data-r="48">AlphaEvolve 2025: 4, 48</button>
+    </div>
+  </figure>
+
+  <p>Additions cost something too. At the top level, Strassen adds and subtracts \(n/2 \times n/2\) blocks a fixed number of times. That is about \(n^2\) steps. So the total work \(W(n)\) follows the pattern \(W(n) = 7\,W(n/2) + c\,n^2\) for some fixed number \(c\). If you unroll this pattern, all the \(n^2\) parts add up to at most a constant times \(n^{2.807}\), because \(n^2\) grows slower than \(n^{2.807}\). So the additions change only the constant in front, and the exponent stays the same. From now on, <strong>we only count multiplications</strong>. Multiplying by a fixed number (like 2 or &minus;1) is free for the same reason.</p>
+
+  <div class="rulecard">
+    <span class="tag">Definition</span>
+    <p>The <strong>exponent of matrix multiplication</strong>, \(\omega\), is the smallest number with this property: for every tiny extra amount \(\varepsilon > 0\), you can multiply \(n \times n\) matrices with about \(n^{\omega + \varepsilon}\) steps.</p>
+    <p>We know \(\omega \ge 2\), because the answer alone has \(n^2\) numbers to write down. We know \(\omega \le 3\) from the school method. The new theorem says \(\omega \le 9/4\).</p>
+  </div>
+
+  <p>Look at the calculator again. To reach exponent 2.25 with \(u = 2\), you would need \(r \le 2^{2.25} \approx 4.76\). That is impossible, because 2&times;2 matrices need at least 7. So the recipes behind 9/4 must use huge blocks. Nobody has written one down. The new proof shows that such recipes <em>exist</em> without showing one. You will see how a proof can do that.</p>
+
+  <div class="quiz" data-quiz="q2"></div>
+</section>
+
+<!-- ================================================================ 3 -->
+<section class="chapter" id="tensors" data-title="Tasks as 3D shapes" data-num="03">
+  <p class="chapnum">Chapter 3</p>
+  <h2>Tasks as 3D shapes</h2>
+  <p>To reason about <em>all possible</em> recipes, we need a way to describe a multiplication task as a single object. Here is the trick. List every product the task needs, and add a label that says where each product goes.</p>
+  <p>Call the entries of \(A\) by the letters \(\X{x_{ij}}\), and the entries of \(B\) by \(\Y{y_{jk}}\). The product \(\X{x_{ij}}\Y{y_{jk}}\) goes into the answer at row \(i\), column \(k\). We mark that place with a label \(\Z{z_{ki}}\). Then the whole task is one long sum:</p>
+  \[ \MM(n) = \sum_{i,j,k=1}^{n} \X{x_{ij}}\,\Y{y_{jk}}\,\Z{z_{ki}}. \]
+  <p>Each term says: &ldquo;multiply this <span class="lx">x</span> by this <span class="ly">y</span>, and send the result to this <span class="lz">z</span>.&rdquo; Think of \(\Z{z_{ki}}\) as a tag. Collect all the terms that carry the tag \(\Z{z_{ki}}\). What is left is \(x_{i1}y_{1k} + x_{i2}y_{2k} + \cdots + x_{in}y_{nk}\), which is exactly entry \((i,k)\) of the answer. So the tags sort the products into their places. (We write the label as \(z_{ki}\) and not \(z_{ik}\) on purpose. The indices then run in a cycle \(i \to j \to k \to i\), and that symmetry helps later.)</p>
+  <p>Mathematicians call such an object a <strong>tensor</strong>. We will call it a <strong>task</strong>. It has three groups of variables, called the three <strong>legs</strong>:</p>
+  <div class="legs-key" style="margin-bottom:1rem"><span class="lx">X leg: first input</span><span class="ly">Y leg: second input</span><span class="lz">Z leg: output labels</span></div>
+  <p>Now picture it. Put the X variables along one axis, the Y variables along another, and the Z variables along a third. For each term, place a small cube at its position. A task becomes a 3D shape.</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Tasks as shapes</span><span>drag sideways to turn</span></div>
+    <canvas id="cube" height="320" aria-label="3D picture of a multiplication task"></canvas>
+    <div class="row" style="margin-top:10px" id="cubePresets">
+      <button class="btn small" data-t="mm2" aria-pressed="true">MM(2)</button>
+      <button class="btn small" data-t="mm3" aria-pressed="false">MM(3)</button>
+      <button class="btn small" data-t="dot" aria-pressed="false">Dot(5)</button>
+      <button class="btn small" data-t="poly" aria-pressed="false">Poly(3, 4)</button>
+      <button class="btn small" id="cubeSpin" aria-pressed="false">Spin</button>
+    </div>
+    <div class="readout" id="cubeInfo"></div>
+  </figure>
+
+  <h3>Rank: the true cost of a task</h3>
+  <p>One multiplication in a recipe has this form: (some mix of x&rsquo;s) times (some mix of y&rsquo;s), and the result is sent to some mix of z&rsquo;s. For example, Strassen&rsquo;s \(M_1 = (A_{11} + A_{22})(B_{11} + B_{22})\) is used in \(C_{11}\) and \(C_{22}\). As a piece of the task, it is</p>
+  \[ (\X{x_{11} + x_{22}})\,(\Y{y_{11} + y_{22}})\,(\Z{z_{11} + z_{22}}). \]
+  <p>The <strong>rank</strong> of a task is the smallest number of such pieces that add up to exactly the task. Why does this match recipes? A recipe makes products \(M_1, \ldots, M_r\), and then writes each answer entry as a mix of them. Put these mixes into the big sum. Each product \(M_\ell\) then appears once, times the mix of tags of the entries that use it. That is one piece. So a recipe with \(r\) products gives \(r\) pieces, and the reverse also works. Rank is the number of multiplications in the best possible recipe. Strassen showed that \(\MM(2)\) has rank at most 7. (It is exactly 7.)</p>
+
+  <h3>Two ways to combine tasks</h3>
+  <p><strong>Side by side</strong> (written \(\oplus\)): two tasks with completely separate variables on all three legs. It is like doing two unrelated jobs. We write the number \(m\) for the task &ldquo;\(m\) separate single products&rdquo;.</p>
+  <p><strong>Together</strong> (written \(\otimes\)): we run two tasks at once and pair up their variables. Each variable of the new task is a pair (one from each task), and each term is a pair of terms. The 3D shape of \(A \otimes B\) is the shape of \(A\) with every cube replaced by a small copy of \(B\). Example: \(\MM(2) \otimes \MM(2) = \MM(4)\). This is the block picture from Chapter 2: a 4&times;4 product is a 2&times;2 product of 2&times;2 blocks. In general, recipes with \(r\) and \(r'\) products for \(A\) and \(B\) give a recipe with \(r \cdot r'\) products for \(A \otimes B\).</p>
+
+  <h3>The dot product, and why matrix multiplication is three of them</h3>
+  <p>The simplest interesting task is the <strong>dot product</strong>:</p>
+  \[ \Dot(m) = \X{x}\,(\Y{y_1}\Z{z_1} + \Y{y_2}\Z{z_2} + \cdots + \Y{y_m}\Z{z_m}). \]
+  <p>As a recipe, \(\Dot(m)\) multiplies one number \(x\) by each of \(y_1, \ldots, y_m\), and sends each result to its own tag. That takes \(m\) multiplications, and its rank is exactly \(m\). The name comes from the Y and Z legs, which pair up like a dot product \(y_1 z_1 + \cdots + y_m z_m\). (This version has its lone variable on the X leg. There are two more versions, with the lone variable on the Y leg or on the Z leg.)</p>
+  <p>Look again at \(\X{x_{ij}}\Y{y_{jk}}\Z{z_{ki}}\). Each index appears on exactly two legs:</p>
+  <ul class="plain">
+    <li>index \(j\) is on <span class="lx">X</span> and <span class="ly">Y</span>, and <span class="lz">Z</span> does not see it;</li>
+    <li>index \(k\) is on <span class="ly">Y</span> and <span class="lz">Z</span>, and <span class="lx">X</span> does not see it;</li>
+    <li>index \(i\) is on <span class="lz">Z</span> and <span class="lx">X</span>, and <span class="ly">Y</span> does not see it.</li>
+  </ul>
+  <p>Each index works like a dot product between two legs. Index \(k\) pairs Y with Z, and X is the lone leg, so it gives \(\Dot_X\). In the same way, index \(i\) gives \(\Dot_Y\), and index \(j\) gives \(\Dot_Z\). When we run the three together with \(\otimes\), each variable collects one index from each dot product where it is not the lone leg. For example, x collects \(i\) and \(j\), which is why it is called \(x_{ij}\). So matrix multiplication is three dot products run together, one for each pair of legs:</p>
+  \[ \MM(n) = \Dot_{\X{X}}(n) \otimes \Dot_{\Y{Y}}(n) \otimes \Dot_{\Z{Z}}(n). \]
+  <p>Here \(\Dot_{X}\) means the version whose lone variable is on the X leg. Keep this fact in mind. It is where the <strong>3</strong> in \(9/4 = 3 \times 3/4\) comes from.</p>
+
+  <div class="quiz" data-quiz="q3"></div>
+  <div class="quiz" data-quiz="q4"></div>
+</section>
+
+<!-- ================================================================ 4 -->
+<section class="chapter" id="poly" data-title="Cheap polynomials" data-num="04">
+  <p class="chapnum">Chapter 4</p>
+  <h2>Multiplying polynomials is cheap</h2>
+  <p>The proof never works with matrix multiplication directly. It studies a simpler task: multiplying two polynomials. Take</p>
+  \[ f(s) = \X{f_0} + \X{f_1}s + \cdots + \X{f_{a-1}}s^{a-1}, \qquad g(s) = \Y{g_0} + \Y{g_1}s + \cdots + \Y{g_{b-1}}s^{b-1}. \]
+  <p>So \(f\) has \(a\) coefficients and \(g\) has \(b\) coefficients. Their product has \(a + b - 1\) coefficients. The coefficient of \(s^m\) collects every product \(f_i g_j\) with \(i + j = m\). In the task, we rename \(f_i\) as \(\X{x_i}\) and \(g_j\) as \(\Y{y_j}\), and the tag \(\Z{z_m}\) marks the coefficient of \(s^m\):</p>
+  \[ \Poly(a, b) = \sum_{i=0}^{a-1} \sum_{j=0}^{b-1} \X{x_i}\,\Y{y_j}\,\Z{z_{i+j}}. \]
+  <p>The direct way uses \(a \times b\) multiplications, one for each pair. But there is a much cheaper way.</p>
+
+  <h3>The evaluation trick</h3>
+  <p>Two points fix a line. Three points fix a parabola. In general, \(a + b - 1\) points fix a polynomial with \(a + b - 1\) coefficients. So we can:</p>
+  <ol class="plain">
+    <li>Pick \(a + b - 1\) numbers \(p\). Compute \(f(p)\) and \(g(p)\). This uses only additions and multiplications by fixed numbers, so it is free.</li>
+    <li>Multiply \(f(p) \cdot g(p)\) for each point. That is \(a + b - 1\) real multiplications.</li>
+    <li>Rebuild the product polynomial from its values. This is called interpolation, and it is again free. Example: a line \(c_0 + c_1 s\) has the value \(c_0\) at \(s = 0\) and \(c_0 + c_1\) at \(s = 1\). So \(c_0\) is the first value, and \(c_1\) is the second value minus the first. For fixed points, every coefficient is always the same fixed mix of the values.</li>
+  </ol>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Evaluate, multiply, rebuild</span></div>
+    <canvas id="polyPlot" height="250" aria-label="Graph of f, g and their product"></canvas>
+    <div class="legs-key" style="margin-top:6px"><span class="lx">f (2 coefficients)</span><span class="ly">g (3 coefficients)</span><span class="lz">f &middot; g (4 coefficients)</span></div>
+    <div class="scroll-x" style="margin-top:10px"><table class="vals" id="polyTable"></table></div>
+    <div class="readout" id="polyOut"></div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="polyNew">New polynomials</button></div>
+    <figcaption class="fig-cap">The direct method needs 2 &times; 3 = 6 multiplications. The trick needs 4, one per point. The four dots fix the gold curve completely.</figcaption>
+  </figure>
+
+  <p>This works for any \(a\) and \(b\). So</p>
+  \[ \text{rank of } \Poly(a,b) \le a + b - 1. \]
+  <p>(It is exactly \(a + b - 1\), but the proof only needs &ldquo;at most&rdquo;.)</p>
+  <p>For two polynomials of the same length \(a\), the cost is \(2a - 1\). It grows like a straight line in \(a\). Remember this. It will become the <strong>ceiling</strong> in the final squeeze.</p>
+  <p>One more small fact: \(\Poly(1, b) = \X{x_0}(\Y{y_0}\Z{z_0} + \cdots + \Y{y_{b-1}}\Z{z_{b-1}})\). That is exactly \(\Dot(b)\). A polynomial with one coefficient is just a number, and multiplying it into \(g\) is a dot product.</p>
+
+  <div class="quiz" data-quiz="q5"></div>
+</section>
+
+<!-- ================================================================ 5 -->
+<section class="chapter" id="squish" data-title="Squishing tasks" data-num="05">
+  <p class="chapnum">Chapter 5</p>
+  <h2>Squishing one task into another</h2>
+  <p>Suppose you have a recipe for task \(A\). Now replace each x by some mix of new x&rsquo;s, each y by a mix of new y&rsquo;s, and each z by a mix of new z&rsquo;s (a mix may also be zero). Suppose the result is task \(B\). A piece (mix of x&rsquo;s)(mix of y&rsquo;s)(mix of z&rsquo;s) is still a piece of the same form after the replacement. So \(r\) pieces for \(A\) become \(r\) pieces for \(B\), and your recipe for \(A\) also solves \(B\). So \(B\) is no harder than \(A\). We write \(A \ge B\) and call this a <strong>squish</strong>. (The paper calls it a restriction.)</p>
+  <p>Example: in \(\MM(n)\), set every off-diagonal entry \(x_{ij}, y_{jk}, z_{ki}\) to zero when the two indices differ. Only the terms \(x_{ii}y_{ii}z_{ii}\) survive. Those are \(n\) separate products. So \(\MM(n) \ge n\).</p>
+
+  <h3>Approximate squishing</h3>
+  <p>In 1979, Dario Bini and his coworkers found something strange. Some tasks can be done <em>almost exactly</em> with fewer multiplications than they need exactly. Here is the simplest example. The task</p>
+  \[ W = \X{x_0}\Y{y_0}\Z{z_1} + \X{x_0}\Y{y_1}\Z{z_0} + \X{x_1}\Y{y_0}\Z{z_0} \]
+  <p>needs 3 multiplications exactly. But for a small number \(\varepsilon\), only 2 pieces give</p>
+  \[ \frac{(\X{x_0 + \varepsilon x_1})(\Y{y_0 + \varepsilon y_1})(\Z{z_0 + \varepsilon z_1}) - \X{x_0}\Y{y_0}\Z{z_0}}{\varepsilon} = W + \varepsilon(\cdots) + \varepsilon^2(\cdots). \]
+
+  <figure class="fig">
+    <div class="fig-title"><span>Two products that almost do the work of three</span></div>
+    <label class="slider"><span>&epsilon;</span><input type="range" id="wEps" min="0" max="3" step="0.01" value="1"><output id="wEpsOut">0.1</output></label>
+    <div class="readout" id="wOut"></div>
+    <figcaption class="fig-cap">We plug in fixed numbers for all six variables. As &epsilon; shrinks, the leftover terms fade, and the 2-product formula gets as close to W as you like.</figcaption>
+  </figure>
+
+  <p>Look at the powers of \(\varepsilon\) in this example. Before we divide, \(W\) carries \(\varepsilon^1\), and the junk carries \(\varepsilon^2\) and \(\varepsilon^3\). Dividing by \(\varepsilon\) makes \(W\) the lowest power. The paper uses a tidy version of this bookkeeping. Give every variable a whole-number <strong>weight</strong>. Multiply each variable by \(\varepsilon^{\text{weight}}\). Then each term gets multiplied by \(\varepsilon\) to the power of its total weight. As \(\varepsilon \to 0\), only the terms with the smallest total weight survive. We write \(A \leadsto B\), and we call it a <strong>degeneration</strong>. Weights can be negative. What matters is that every term has total weight 0 or more, and the terms we want have weight exactly 0. A negative weight does the same job as dividing by \(\varepsilon\). You will see this tool used three times.</p>
+  <p>Bini also showed how to remove the \(\varepsilon\). After the squish, the task is a polynomial in \(\varepsilon\), and its constant term is the task we want. If that polynomial has degree \(L\), run the recipe at \(L + 1\) different values of \(\varepsilon\). Then rebuild the constant term from the results, exactly as in Chapter 4. This costs a factor of \(L + 1\) more products. Such factors do not matter, because of the next trick.</p>
+
+  <div class="rulecard">
+    <span class="tag">The power trick</span>
+    <p>Let \(\alpha\) and \(\beta\) be positive numbers. Suppose you know \(\alpha^N \le 5\cdot \beta^N\) for every whole number \(N\). Take the \(N\)th root: \(\alpha \le 5^{1/N}\cdot \beta\). As \(N\) grows, \(5^{1/N}\) gets closer and closer to 1. So \(\alpha \le \beta\). <strong>A fixed constant disappears when you can repeat the argument on bigger and bigger powers.</strong></p>
+    <p>The same works for a factor that grows slowly with \(N\). For example, \((5N)^{1/N}\) also gets closer and closer to 1. This covers Bini&rsquo;s factor, which grows with the power.</p>
+  </div>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Watch a constant disappear</span></div>
+    <label class="slider"><span>power N</span><input type="range" id="powN" min="1" max="200" step="1" value="1"><output id="powNOut">1</output></label>
+    <div class="readout" id="powOut"></div>
+  </figure>
+
+  <p>Tasks can be raised to powers with \(\otimes\), and (as the next chapter shows) their scores then get raised to the same power. So this trick shows up everywhere in the proof. Each time a step costs a constant factor (like the 5 above), we raise everything to a big power, and the constant goes away.</p>
+
+  <div class="quiz" data-quiz="q6"></div>
+</section>
+
+<!-- ================================================================ 6 -->
+<section class="chapter" id="meters" data-title="Meters" data-num="06">
+  <p class="chapnum">Chapter 6</p>
+  <h2>Meters: scoring how hard a task is</h2>
+  <p>Rank is hard to compute. So we look for simpler scores that still respect the rules of the game. A <strong>meter</strong> \(\lambda\) (the Greek letter lambda) gives each task a number \(\lambda(A) \ge 0\), and it obeys four rules.</p>
+
+  <div class="rulecard">
+    <span class="tag">The four meter rules</span>
+    <ol class="plain">
+      <li><strong>One product scores 1.</strong> \(\lambda(\X{x}\Y{y}\Z{z}) = 1\).</li>
+      <li><strong>Side by side adds.</strong> \(\lambda(A \oplus B) = \lambda(A) + \lambda(B)\).</li>
+      <li><strong>Together multiplies.</strong> \(\lambda(A \otimes B) = \lambda(A)\cdot\lambda(B)\).</li>
+      <li><strong>Squishing never increases the score.</strong> If \(A \ge B\), then \(\lambda(A) \ge \lambda(B)\). This also holds for degenerations \(A \leadsto B\), by Bini&rsquo;s trick and the power trick.</li>
+    </ol>
+  </div>
+
+  <p>Two facts follow quickly. First, \(\lambda(m) = m\) for \(m\) separate products, by rules 1 and 2. Second, a task with rank \(r\) is a squish of \(r\) separate products. So by rule 4:</p>
+  \[ \lambda(A) \le \text{rank}(A). \]
+  <p>A meter never scores a task above its true cost. Do such meters exist? Yes. Here is the simplest one, called a <strong>flattening</strong>. Group the terms of a task by their x variable: \(x_1\cdot(\text{rest}_1) + x_2\cdot(\text{rest}_2) + \cdots\). The meter counts the smallest number of &ldquo;rests&rdquo; from which you can build every rest by mixing. For example, \(\Dot_X(m)\) has only one x, so it scores 1. In \(\Dot_Y(m) = \Y{y}(\X{x_1}\Z{z_1} + \cdots + \X{x_m}\Z{z_m})\), the rests are \(y z_1, \ldots, y z_m\), and none of them is a mix of the others, so it scores \(m\). Checking the four rules for this meter takes some linear algebra, so we skip that. Other meters are far more complex. In fact, most meters are unknown. The beautiful part: <strong>the proof never needs to know what the meters are.</strong> It uses only the four rules.</p>
+
+  <h3>What a meter says about dot products</h3>
+  <p>Dot products combine neatly: \(\Dot(m) \otimes \Dot(k) = \Dot(mk)\). A meter turns \(\otimes\) into multiplication, so \(\lambda(\Dot(mk)) = \lambda(\Dot(m))\cdot\lambda(\Dot(k))\). Also, \(\lambda(\Dot(m))\) never decreases as \(m\) grows, because \(\Dot(m+1)\) squishes to \(\Dot(m)\): set \(y_{m+1}\) to zero. A function with both properties must be a power of \(m\) (the fine print below shows why). So there is a number \(p\) between 0 and 1 with</p>
+  \[ \lambda(\Dot(m)) = m^{p}. \]
+  <p>Each of the three versions of the dot product gets its own exponent: \(p_X\), \(p_Y\), \(p_Z\). And since matrix multiplication is three dot products run together:</p>
+  \[ \lambda(\MM(n)) = n^{p_X}\cdot n^{p_Y}\cdot n^{p_Z} = n^{3t}, \qquad t = \frac{p_X + p_Y + p_Z}{3}. \]
+  <p>So each meter has one number \(t\), its <strong>level</strong>, and it says &ldquo;matrix multiplication costs about \(n^{3t}\)&rdquo;.</p>
+  <p>The level is never zero. From Chapter 5, \(\MM(n) \ge n\), so rule 4 gives \(n^{3t} \ge n\). That means \(3t \ge 1\), so \(t \ge 1/3\).</p>
+
+  <h3>Strassen&rsquo;s bridge</h3>
+  <p>In 1988 Strassen proved a deep fact. It connects the meters to real recipes. The paper proves the part it needs in its appendix.</p>
+  <div class="callout">
+    <span class="tag">Strassen&rsquo;s bridge</span>
+    <p>If every meter has \(3t \le c\), then \(\omega \le c\).</p>
+  </div>
+  <p>Here is one way to think about it. Imagine a market where tasks are goods, and squishing is a legal trade (a harder task can always be traded for an easier one). A meter is a consistent price list for this market. Strassen showed that the price lists tell the whole truth: if every consistent price list says matrix multiplication is cheap, then a cheap recipe really exists. The proof does not build the recipe. That is why the 9/4 result gives no explicit algorithm.</p>
+  <p>So our goal is now clear:</p>
+  <div class="callout"><span class="tag">Goal</span><p>Show that every meter has level \(t \le 3/4\). Then every meter says \(\lambda(\MM(n)) \le n^{3 \cdot 3/4} = n^{9/4}\), and Strassen&rsquo;s bridge gives \(\omega \le 9/4\).</p></div>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Meter dials (imaginary meters)</span></div>
+    <label class="slider"><span class="lx">p_X</span><input type="range" id="pX" min="0" max="1" step="0.01" value="0.9"><output id="pXOut">0.90</output></label>
+    <label class="slider"><span class="ly">p_Y</span><input type="range" id="pY" min="0" max="1" step="0.01" value="0.85"><output id="pYOut">0.85</output></label>
+    <label class="slider"><span class="lz">p_Z</span><input type="range" id="pZ" min="0" max="1" step="0.01" value="0.8"><output id="pZOut">0.80</output></label>
+    <div id="meterScale" style="margin-top:6px"></div>
+    <div class="readout" id="meterOut"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn small" data-p="0,1,1">Flattening meter</button>
+      <button class="btn small" data-p="0.75,0.75,0.75">Level 3/4</button>
+      <button class="btn small" data-p="0.9,0.9,0.9">Level 0.9</button>
+    </div>
+    <figcaption class="fig-cap">Set the three exponents of a pretend meter. The red zone is where we will prove no real meter can sit.</figcaption>
+  </figure>
+
+  <h3>One more simplification: the score P</h3>
+  <p>To keep things simple, we assume the meter does not care which leg is which: if you swap two legs of a task, the reading stays the same. We call such a meter <strong>balanced</strong>. Then the three versions of the dot product score the same, so \(p_X = p_Y = p_Z = t\). (The fine print below explains how the real proof removes this assumption.) Then we define a rescaled score:</p>
+  \[ P(A) = \lambda(A)^{1/t}. \]
+  <p>Why the strange power? It makes the numbers nice:</p>
+  <ul class="plain">
+    <li>\(P(\Dot(m)) = (m^t)^{1/t} = m\). A dot product of length \(m\) scores exactly \(m\).</li>
+    <li>\(P(\MM(n)) = (n^{3t})^{1/t} = n^3\). This does not say that matrix multiplication costs \(n^3\). The power \(1/t\) stretches every score in the same way. After the stretch, the meter&rsquo;s level shows up in one place only: the ceiling below.</li>
+    <li>\(P\) still multiplies under \(\otimes\), and squishing still never increases it.</li>
+    <li>The ceiling becomes \(P(A) \le \text{rank}(A)^{1/t}\).</li>
+  </ul>
+  <p>For the polynomial task, write \(P(a, b)\) for \(P(\Poly(a, b))\). From Chapter 4, we already know three facts about it:</p>
+  <div class="rulecard">
+    <span class="tag">Facts we already have</span>
+    <p><strong>Rule S (swap).</strong> \(P(a,b) = P(b,a)\). The task \(\Poly(b,a)\) is \(\Poly(a,b)\) with the X and Y legs swapped (because \(f \cdot g = g \cdot f\)), and a balanced meter ignores the swap.</p>
+    <p><strong>Rule B (base).</strong> \(P(1, b) = b\), because \(\Poly(1,b) = \Dot(b)\).</p>
+    <p><strong>Rule U (ceiling).</strong> \(P(a, b) \le (a + b - 1)^{1/t}\), because the rank is at most \(a + b - 1\).</p>
+  </div>
+  <p>The next chapters find two more rules. Those two rules are the new part of the proof.</p>
+
+  <details class="fine">
+    <summary>Fine print: meters that treat the legs differently</summary>
+    <div class="fine-body">
+      <p>A real meter can have different \(p_X, p_Y, p_Z\). The paper fixes this with an averaging trick. A meter \(\lambda\) gives six meters, one for each way to reorder the three legs of the task before measuring. The paper multiplies all six readings together and takes the power \(1/(6t)\):</p>
+      \[ P(a,b) = \Big(\prod_{\text{6 orders}} \lambda_\pi(\Poly(a,b))\Big)^{1/(6t)}. \]
+      <p>Each of \(p_X, p_Y, p_Z\) appears twice among the six reorderings, so the exponents add up to \(6t\). Swapping legs only reorders the six readings, so this combined score does not care which leg is which. The paper does each step on this page for each of the six reorderings and multiplies the results. Because the exponents add up to \(6t\), the result is exactly the step for our balanced \(P\).</p>
+    </div>
+  </details>
+  <details class="fine">
+    <summary>Fine print: why \(\lambda(\Dot(m))\) is a power of \(m\)</summary>
+    <div class="fine-body">
+      <p>Let \(F(m) = \lambda(\Dot(m))\). Then \(F(mk) = F(m)F(k)\), so \(F(m^N) = F(m)^N\), and \(F\) never decreases. Put \(p = \log_2 F(2)\), so \(F(2^\ell) = 2^{p\ell}\). For any \(m\) and any big power \(N\), choose \(\ell\) with \(2^\ell \le m^N < 2^{\ell+1}\). Then \(2^{p\ell} \le F(m)^N \le 2^{p(\ell + 1)}\). Take \(\log_2\) and divide by \(N\): \(p\ell/N \le \log_2 F(m) \le p(\ell+1)/N\). As \(N\) grows, \(\ell/N\) gets close to \(\log_2 m\). You get \(F(m) = m^p\). Also \(1 \le F(m) \le m\), because \(\Dot(m)\) has rank \(m\) and contains one product. So \(0 \le p \le 1\).</p>
+    </div>
+  </details>
+  <details class="fine">
+    <summary>Fine print: how Strassen&rsquo;s bridge is proved</summary>
+    <div class="fine-body">
+      <p>The appendix of the paper argues by contradiction. Suppose no meter reads \(\MM(d)\) as high as some number \(k\) below \(d^{\omega}\). A separation theorem from linear algebra then gives an explicit chain of trades among tasks. Repeating this chain many times would produce a recipe that beats the definition of \(\omega\), which is impossible. A fixed-point theorem (Schauder&ndash;Tychonoff) is used to turn an &ldquo;additive&rdquo; score into one that also multiplies. This is the most advanced part of the proof. The rest of this page does not depend on its details.</p>
+    </div>
+  </details>
+
+  <div class="quiz" data-quiz="q7"></div>
+</section>
+
+<!-- ================================================================ 7 -->
+<section class="chapter" id="separate" data-title="The shared-leg trick" data-num="07">
+  <p class="chapnum">Chapter 7</p>
+  <h2>The new trick: separating a shared leg</h2>
+  <p>This is the central new idea of the paper. Start with a problem.</p>
+  <p>Suppose a task splits into pieces \(A_1, A_2, \ldots, A_M\). Each piece has its own Y variables and its own Z variables. But all the pieces <strong>share the same X variables</strong>. If the X variables were separate too, the pieces would be side by side, and rule 2 would say: the meter adds them up. With a shared leg, no rule applies. The pieces compete for the same X variables, and the meter could score the whole far below the sum.</p>
+  <p>Here is a small example. \(\Dot(M)\) is \(M\) single products that share one x. If the x&rsquo;s were separate, the meter would read \(M\). With the shared x, it reads only \(M^t\), which is less than \(M\) when \(t < 1\). So in \(\lambda\), a shared leg costs something. Now look at the rescaled score: \(P(\Dot(M)) = M\), which is exactly the sum of the scores of \(M\) single products. The machine below shows that the same thing happens for every task with a shared leg.</p>
+  <p>The paper builds a machine that fixes this. It takes \(5M\) copies of the task and produces \(M\) pieces that are fully separate. And each piece comes with a free bonus: an extra dot product of length \(M\).</p>
+  \[ 5M \text{ copies of } A \;\leadsto\; \big(A_1 \otimes \Dot(M)\big) \oplus \big(A_2 \otimes \Dot(M)\big) \oplus \cdots \oplus \big(A_M \otimes \Dot(M)\big). \]
+  <p>The machine has two parts: a clock filter and a squish with clever weights.</p>
+
+  <h3>Part 1: the clock filter</h3>
+  <p>Draw \(L\) arrows of length 1, head to tail. Arrow number \(r\) points at angle \(r \cdot k \cdot \frac{360^\circ}{L}\). If \(k\) is a multiple of \(L\), every arrow points the same way, and the total is \(L\). For any other \(k\), the arrows walk around a closed loop and end where they started. The total is exactly 0.</p>
+  <p>Why? Turn the whole picture by \(k \cdot 360^\circ / L\). Each arrow lands exactly on the next one, and the last one lands on the first. So the set of arrows is the same, and the sum is the same. But turning also turns the sum. A turn of less than a full circle can leave an arrow unchanged only if that arrow has length zero. So the sum is zero.</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Clock arrows cancel</span></div>
+    <canvas id="clock" height="260" aria-label="Arrows placed head to tail"></canvas>
+    <label class="slider"><span>arrows L</span><input type="range" id="clockL" min="3" max="15" step="1" value="8"><output id="clockLOut">8</output></label>
+    <label class="slider"><span>turn k</span><input type="range" id="clockK" min="0" max="16" step="1" value="3"><output id="clockKOut">3</output></label>
+    <div class="readout" id="clockOut"></div>
+  </figure>
+
+  <p>These arrows are complex numbers: arrow \(r\) is \(\zeta^{rk}\), where \(\zeta\) is a complex number that turns by \(360^\circ/L\). This is why the theorem is stated over the complex numbers. The sum works as a filter. It keeps a term only if a certain number \(k\) is zero.</p>
+  <p>Here is how the machine uses it. Take \(L = 5M\) copies of the task, numbered \(r = 0, 1, \ldots, L-1\). Each copy has its own variables. The squish replaces them with mixes of <em>the same</em> new variables. So after the squish, all copies live on one set of variables, and they add up into one big sum.</p>
+  <p>The new variables are these. Each shared x gets \(M\) new versions \(\X{X_g}\), with a &ldquo;guess label&rdquo; \(g = 1, \ldots, M\). The guess says which piece this x might belong to. Each y in piece \(h\) gets versions \(\Y{Y_{h,u}}\), and each z in piece \(h\) gets versions \(\Z{Z_{h,v}}\), with extra labels \(u, v = 1, \ldots, M\). In copy \(r\), each new variable also carries a clock arrow:</p>
+  \[ \X{X_g} \text{ gets } \zeta^{2rg}, \qquad \Y{Y_{h,u}} \text{ gets } \zeta^{r(u-h)}, \qquad \Z{Z_{h,v}} \text{ gets } \zeta^{-r(v+h)}. \]
+  <p>Each leg uses only the labels it knows. Multiplying arrows of length 1 adds their angles. So a term with labels \(g, h, u, v\) gets the arrow \(\zeta^{rk}\), where</p>
+  \[ k = 2g + (u - h) - (v + h) = u - v + 2(g - h). \]
+  <p>Adding up all \(L\) copies keeps exactly the terms with \(k = 0\). (The labels run from 1 to \(M\), so \(k\) lies between \(-3(M-1)\) and \(3(M-1)\). Any \(L\) above \(3(M-1)\) makes sure that \(k\) is never a nonzero multiple of \(L\). The paper picks \(L = 5M\). The z variables also carry a factor \(1/L\), so each kept term appears exactly once.)</p>
+
+  <h3>Part 2: the squish with a perfect square</h3>
+  <p>We want only terms with a correct guess, \(g = h\). So we want each term to get weight \((g - h)^2\). Then the right guesses have weight 0, and every wrong guess has weight at least 1 and disappears.</p>
+  <p>Here is the difficulty. A weight must be given to each variable on its own. \(\X{X_g}\) knows \(g\) but not \(h\). \(\Y{Y_{h,u}}\) and \(\Z{Z_{h,v}}\) know \(h\) but not \(g\). No single leg can compare \(g\) with \(h\). Expand the square: \((g-h)^2 = g^2 - 2gh + h^2\). X can carry \(g^2\). The cross term \(-2gh\) is the hard part, because it mixes \(g\) and \(h\). But after the filter, \(u - v = -2(g-h)\). Multiply by \(h\): \(h(u - v) = -2gh + 2h^2\). So \(-2gh + h^2 = hu - hv - h^2\), and this uses only labels that Y and Z know. That gives the paper&rsquo;s weights:</p>
+  \[ w(\X{X_g}) = g^2, \qquad w(\Y{Y_{h,u}}) = hu - h^2, \qquad w(\Z{Z_{h,v}}) = -hv. \]
+  <p>A term that passed the filter has \(u - v = -2(g - h)\). So its total weight is</p>
+  \[ g^2 + hu - h^2 - hv \;=\; g^2 - h^2 + h(u - v) \;=\; g^2 - h^2 - 2h(g-h) \;=\; (g - h)^2. \]
+  <p>A perfect square. The clock filter ties \(u - v\) to \(g - h\), and that lets the three legs share the job of computing \((g-h)^2\). When \(g = h\), the filter also forces \(u = v\). The surviving terms are \(\X{X_h}\,\Y{Y_{h,u}}\,\Z{Z_{h,u}}\): each piece \(h\) now has its own x variables, and the free index \(u\) gives a bonus \(\Dot(M)\).</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>The separation machine</span><span id="sepCount"></span></div>
+    <canvas id="sep" height="340" aria-label="Grid of all label combinations"></canvas>
+    <div class="row" style="margin-top:10px" id="sepStages">
+      <button class="btn small" data-stage="0" aria-pressed="false">1. All terms</button>
+      <button class="btn small" data-stage="1" aria-pressed="false">2. Clock filter</button>
+      <button class="btn small" data-stage="2" aria-pressed="true">3. Squish</button>
+    </div>
+    <label class="slider" style="margin-top:8px"><span>pieces M</span><input type="range" id="sepM" min="2" max="5" step="1" value="3"><output id="sepMOut">3</output></label>
+    <label class="slider"><span>&epsilon;</span><input type="range" id="sepEps" min="0" max="1" step="0.01" value="0.25"><output id="sepEpsOut">0.25</output></label>
+    <div class="readout" id="sepInfo" aria-live="polite"></div>
+    <figcaption class="fig-cap">Big squares: rows are the true piece h, columns are the guess g. Small cells inside: rows are u, columns are v. Tap any small cell to see its numbers. After the squish, only the diagonal big squares keep terms, and inside each one the terms sit on a diagonal: that diagonal is the bonus dot product.</figcaption>
+  </figure>
+
+  <h3>What the machine gives the meter</h3>
+  <p>Suppose all \(M\) pieces are the same. Apply the meter to both ends of the machine. On the left, \(5M\) separate copies score \(5M\cdot\lambda(A)\) (rule 2). On the right, \(M\) separate pieces, each times \(\Dot(M)\), score \(M\cdot M^{t}\cdot\lambda(A_1)\) (rules 2 and 3). A squish never increases the score, so</p>
+  \[ 5M\cdot\lambda(A) \;\ge\; M\cdot M^{t}\cdot\lambda(A_1). \]
+  <p>Cancel \(M\), then raise both sides to the power \(1/t\) to switch to the score \(P\):</p>
+  \[ 5^{1/t}\cdot P(A) \;\ge\; M\cdot P(A_1). \]
+  <p>Now the power trick removes the constant \(5^{1/t}\). Apply the same machine to \(A \otimes A \otimes \cdots \otimes A\) (\(N\) times). That task also shares its X leg, and it has \(M^N\) equal pieces, each equal to \(A_1 \otimes \cdots \otimes A_1\). The machine gives \(5^{1/t}\cdot P(A)^N \ge M^N \cdot P(A_1)^N\). Take \(N\)th roots and let \(N\) grow. So \(P(A) \ge M\cdot P(A_1)\): the score of the whole is at least the sum of the scores of its \(M\) pieces. Look at what happened. The factor \(M^t\) from the bonus dot product paid back the cost of the copies. Without the bonus, the machine would be useless.</p>
+
+  <div class="rulecard">
+    <span class="tag">The shared-leg rule</span>
+    <p>If a task degenerates into pieces that share only the X leg (with separate Y and separate Z variables), then</p>
+    \[ P(\text{task}) \ge P(\text{piece}_1) + P(\text{piece}_2) + \cdots \]
+    <p>A shared leg costs nothing, as far as the score \(P\) can tell.</p>
+    <p>The text above proves this for equal pieces. Chapter 8 needs two pieces of different sizes. The box below shows how the paper handles that case.</p>
+  </div>
+
+  <details class="fine">
+    <summary>Deeper look: pieces of different sizes</summary>
+    <div class="fine-body">
+      <p>When the two pieces have different scores \(\alpha\) and \(\beta\), the paper raises the task to a big power \(N\). Each term of the power picks a piece in each of its \(N\) factors, like a word of length \(N\) made of two letters, one letter for each kind of piece. Keep only the words with a fixed fraction \(q\) of the first letter. Those words form many equal pieces that share the X leg. The number of such words is about \(e^{N H(q)}\), where \(H(q) = -q\ln q - (1-q)\ln(1-q)\) is the <strong>entropy</strong>. For example, with \(q = 1/2\) the count is the binomial coefficient \(\binom{N}{N/2}\). It is close to \(2^N = e^{N \ln 2}\) (up to a much smaller factor), and \(H(1/2) = \ln 2\). The machine then gives</p>
+      \[ P(\text{task}) \ge e^{H(q)}\,\alpha^{q}\,\beta^{1-q} \quad\text{for every } q. \]
+      <p>Now choose the best \(q\). Try it below: the best value is always exactly \(\alpha + \beta\), at \(q = \alpha/(\alpha+\beta)\).</p>
+      <figure class="fig">
+        <div class="fig-title"><span>The best q gives &alpha; + &beta;</span></div>
+        <canvas id="ent" height="220" aria-label="Graph of the entropy bound"></canvas>
+        <label class="slider"><span>&alpha;</span><input type="range" id="entA" min="1" max="10" step="0.1" value="3"><output id="entAOut">3.0</output></label>
+        <label class="slider"><span>&beta;</span><input type="range" id="entB" min="1" max="10" step="0.1" value="5"><output id="entBOut">5.0</output></label>
+        <div class="readout" id="entOut"></div>
+      </figure>
+    </div>
+  </details>
+
+  <div class="quiz" data-quiz="q8"></div>
+</section>
+
+<!-- ================================================================ 8 -->
+<section class="chapter" id="bend" data-title="Rule C: the score bends" data-num="08">
+  <p class="chapnum">Chapter 8</p>
+  <h2>Rule C: the score bends</h2>
+  <p>The first new rule is about how \(P(a, b)\) changes when \(b\) grows by one step at a time.</p>
+  <div class="rulecard">
+    <span class="tag">Rule C (bending)</span>
+    \[ 2P(a, b) \;\ge\; P(a, b+1) + P(a, b-1) \qquad (b \ge 2). \]
+    <p>Move the terms around: \(P(a,b) - P(a,b-1) \ge P(a,b+1) - P(a,b)\). Each step up in \(b\) gains <strong>no more</strong> than the step before it. The graph of \(P\) bends downward, like a hill that gets flatter.</p>
+  </div>
+  <p>Here is the proof idea in four moves.</p>
+
+  <h3>Move 1: do the task twice</h3>
+  <p>Multiply \(f\) by <em>two</em> polynomials \(g_1\) and \(g_2\) at once, each with \(b\) coefficients. This is \(\Poly(a, b) \otimes \Dot_X(2)\): the input \(f\) is shared, so it plays the lone X role of the dot product. Its score is \(2P(a, b)\), since \(P\) multiplies and \(P(\Dot_X(2)) = 2\).</p>
+
+  <h3>Move 2: a pair is one long plus one short</h3>
+  <p>A pair \((g_1, g_2)\) holds \(2b\) numbers. A polynomial of length \(b + 1\) and one of length \(b - 1\) together also hold \(2b\) numbers. The trick is to cut the pair into those two parts. Send the pair to one polynomial:</p>
+  \[ (g_1, g_2) \;\longmapsto\; s\cdot g_1 + g_2. \]
+  <p>The result has \(b + 1\) coefficients. Now pick \(2b\) special pairs:</p>
+  <ul class="plain">
+    <li><span class="ly">Long pairs:</span> \((0, 1), (1, 0), (s, 0), \ldots, (s^{b-1}, 0)\). They map to \(1, s, s^2, \ldots, s^b\). There are \(b + 1\) of them.</li>
+    <li><span class="lz">Short pairs:</span> \((1, -s), (s, -s^2), \ldots, (s^{b-2}, -s^{b-1})\). They all map to 0. There are \(b - 1\) of them.</li>
+  </ul>
+  <p>Every pair is a mix of these \(2b\) special pairs in exactly one way. Try it for \(b = 2\): the pair \((c_0 + c_1 s,\; d_0 + d_1 s)\) equals \(d_0\cdot(0,1) + (c_0 + d_1)\cdot(1,0) + c_1 \cdot (s, 0) - d_1\cdot(1, -s)\). Expand it to check. The mix numbers are new variables for the Y leg. Switching to them is a squish, and another squish switches back. So by rule 4, the switch does not change any meter reading. We do the same for the output pairs on the Z leg.</p>
+
+  <h3>Move 3: multiplying by f respects the split</h3>
+  <p>Multiply the pair by \(f\). Then \(s\cdot(fg_1) + fg_2 = f\cdot(s g_1 + g_2)\). So on the long part, it is plain multiplication by \(f\): that is \(\Poly(a, b+1)\). A short pair has the form \((c, -s\cdot c)\), and \(f\) sends it to \((fc, -s\cdot fc)\), which is again a short pair. On the short part, it is again multiplication by \(f\): that is \(\Poly(a, b-1)\).</p>
+  <p>One more point matters. The special pairs do not depend on \(f\). The coefficients of \(f\) form the shared X leg, so one choice of new variables must work for every \(f\) at once. It does.</p>
+  <p>Write the task as a table in the new variables. The long and short parts give two diagonal blocks. One corner is zero, because short pairs go to short pairs. The other corner (marked \(*\)) has a few leftover entries. They come from the long pair \((0, 1)\): \(f\cdot(0,1) = (0, f)\), and \((0, f)\) has some short-pair parts.</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Multiplication by f, in the split coordinates</span></div>
+    <div class="scroll-x"><table class="blockmat" id="cc"></table></div>
+    <label class="slider" style="margin-top:10px"><span>length a</span><input type="range" id="ccA" min="2" max="3" step="1" value="2"><output id="ccAOut">2</output></label>
+    <label class="slider"><span>length b</span><input type="range" id="ccB" min="2" max="4" step="1" value="3"><output id="ccBOut">3</output></label>
+    <label class="slider"><span>&epsilon;</span><input type="range" id="ccEps" min="0" max="1" step="0.01" value="1"><output id="ccEpsOut">1.00</output></label>
+    <div class="legs-key" style="margin-top:6px"><span class="ly">Poly(a, b+1) block</span><span class="lz">Poly(a, b&minus;1) block</span><span class="lx">leftover corner &times; &epsilon;</span></div>
+    <div class="readout" id="ccInfo"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="ccNew">New f</button></div>
+    <figcaption class="fig-cap">Columns are the input pair, rows are the output pair. Columns L0, L1, ... and rows L0', ... are the long pairs. Columns S0, ... and rows S0', ... are the short pairs. Slide &epsilon; to 0 to squish the leftover corner away.</figcaption>
+  </figure>
+
+  <h3>Move 4: squish, then use the shared-leg rule</h3>
+  <p>Give weight \(-1\) to the input short-part variables, weight \(+1\) to the output short-part labels, and 0 to everything else. The two diagonal blocks get weight \(-1 + 1 = 0\) or \(0 + 0 = 0\), so they stay. The leftover corner gets weight \(0 + 1 = 1\), so it disappears. The other corner would get weight \(-1\), but it is empty. So</p>
+  \[ \Poly(a, b) \otimes \Dot(2) \;\leadsto\; \Poly(a, b+1) \text{ and } \Poly(a, b-1), \]
+  <p>two pieces that share the X leg (the coefficients of \(f\)) and have separate Y and Z variables. The shared-leg rule gives \(2P(a, b) \ge P(a, b+1) + P(a, b-1)\). That is Rule C.</p>
+  <p>By Rule S, the same bending holds in the first variable \(a\) too.</p>
+
+  <div class="quiz" data-quiz="q9"></div>
+</section>
+
+<!-- ================================================================ 9 -->
+<section class="chapter" id="triple" data-title="Rule T: tripling" data-num="09">
+  <p class="chapnum">Chapter 9</p>
+  <h2>Rule T: tripling</h2>
+  <div class="rulecard">
+    <span class="tag">Rule T (tripling)</span>
+    \[ P(a,\; 3h + a - 1) \;\ge\; 3\,P(a, h). \]
+    <p>For all \(a, h \ge 1\): a long polynomial task contains three copies of a shorter one. The extra \(a - 1\) in the length is a small &ldquo;tax&rdquo;.</p>
+  </div>
+  <p>Draw \(\Poly(a, B)\) as a grid. Rows are the Y variables \(y_0, y_1, \ldots\). Columns are the Z labels \(z_0, z_1, \ldots\). The term \(\X{x_i}\Y{y_j}\Z{z_{i+j}}\) sits in row \(j\), column \(i + j\). So each \(x_i\) fills a slanted stripe.</p>
+  <p>Take \(B = 3h + a - 1\). Row \(j\) has terms in columns \(j\) to \(j + a - 1\). Now cut the rows into three groups (first, middle, last), and the columns too:</p>
+  <ul class="plain">
+    <li>Rows: \(0\) to \(h-1\); then \(h\) to \(2h+a-2\); then \(2h+a-1\) to \(3h+a-2\).</li>
+    <li>Columns: \(0\) to \(h+a-2\); then \(h+a-1\) to \(2h+a-2\); then \(2h+a-1\) to \(3h+2a-3\).</li>
+  </ul>
+  <p>Give weight \(+1\) to the middle rows (Y variables) and weight \(-1\) to the middle columns (Z labels). Watch what survives.</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Cutting Poly(a, 3h + a &minus; 1) into three</span></div>
+    <canvas id="tri" height="300" aria-label="Grid of the polynomial task with three blocks"></canvas>
+    <label class="slider" style="margin-top:8px"><span>length a</span><input type="range" id="triA" min="1" max="3" step="1" value="2"><output id="triAOut">2</output></label>
+    <label class="slider"><span>length h</span><input type="range" id="triH" min="1" max="3" step="1" value="1"><output id="triHOut">1</output></label>
+    <label class="slider"><span>&epsilon;</span><input type="range" id="triEps" min="0" max="1" step="0.01" value="0.35"><output id="triEpsOut">0.35</output></label>
+    <div class="readout" id="triInfo"></div>
+    <figcaption class="fig-cap">The number in each cell is i, for the term x<sub>i</sub>. Crossed cells have weight +1 and fade as &epsilon; goes to 0. No cell has weight &minus;1: a middle label can only be reached from a middle row.</figcaption>
+  </figure>
+
+  <p>Three blocks remain. They share the X leg (the same \(x_0, \ldots, x_{a-1}\)), and they have separate rows and separate columns.</p>
+  <ul class="plain">
+    <li>The <span class="ly">first</span> and <span class="lz">last</span> blocks are copies of \(\Poly(a, h)\), just shifted.</li>
+    <li>The <span class="lo">middle</span> block is \(\Poly(a, h)\) with the Y and Z legs swapped. Its Y side is the long one. To match \(\Poly(a,h)\) exactly, also rename \(x_i\) as \(x_{a-1-i}\) (we do this only to identify this one block). A balanced meter ignores the leg swap, so this block scores \(P(a, h)\) too.</li>
+  </ul>
+  <p>The shared-leg rule gives \(P(a, 3h + a - 1) \ge 3P(a, h)\). That is Rule T.</p>
+  <p>Why the tax of \(a - 1\)? The middle block needs room. Its Y side has \(h + a - 1\) rows, longer than the outer blocks. That extra room is the price of the swap, and this price is the reason the final answer is 9/4 and not 2.</p>
+  <p>Why three blocks and not two? Two blocks also fit. Keep the first block, skip \(a - 1\) rows, and put a second copy after them. That gives \(P(a, 2h + a - 1) \ge 2P(a, h)\), but the \(a - 1\) skipped rows go to waste. With only two copies, the steps of the next chapter would give only \(P(a,a) \ge\) about \(a\), and that leads to \(\omega \le 3\), which we knew already. The swapped middle block fills the gap and adds a third copy for the same tax.</p>
+
+  <div class="quiz" data-quiz="q10"></div>
+</section>
+
+<!-- ================================================================ 10 -->
+<section class="chapter" id="squeeze" data-title="The squeeze" data-num="10">
+  <p class="chapnum">Chapter 10</p>
+  <h2>The squeeze</h2>
+  <p>We now have five rules for the score \(P(a, b)\) of any meter:</p>
+  <div class="rulecard">
+    <span class="tag">The five rules</span>
+    <p><strong>S</strong> &nbsp; \(P(a,b) = P(b,a)\)</p>
+    <p><strong>B</strong> &nbsp; \(P(1,b) = b\)</p>
+    <p><strong>U</strong> &nbsp; \(P(a,b) \le (a+b-1)^{1/t}\)</p>
+    <p><strong>C</strong> &nbsp; \(2P(a,b) \ge P(a,b+1) + P(a,b-1)\)</p>
+    <p><strong>T</strong> &nbsp; \(P(a, 3h+a-1) \ge 3P(a,h)\)</p>
+  </div>
+  <p>Only rule U mentions the meter&rsquo;s level \(t\). The others hold for every meter. The plan: rules S, B, C and T force \(P\) to grow fast along the diagonal \(a = b\). Rule U says it cannot grow too fast. Squeeze the two together.</p>
+
+  <h3>Step 1: the slope at the diagonal</h3>
+  <p>Fix \(a\) and write \(D_a = P(a, a)\). Use rule T with \(h = a\): \(P(a, 4a - 1) \ge 3D_a\). So as \(b\) goes from \(a\) to \(4a - 1\) (that is \(3a - 1\) steps), \(P\) gains at least \(2D_a\). The average step is at least \(\frac{2D_a}{3a-1}\). By rule C, the steps only get smaller. So the <strong>first</strong> step is at least the average. We give this number a name:</p>
+  \[ P(a, a+1) - P(a, a) \;\ge\; H_a, \qquad H_a = \frac{2D_a}{3a - 1}. \]
+
+  <figure class="fig">
+    <div class="fig-title"><span>A bending curve: the first step beats the average</span></div>
+    <canvas id="slope" height="240" aria-label="A bending curve with its chord and first step"></canvas>
+    <label class="slider" style="margin-top:8px"><span>bend</span><input type="range" id="slopeK" min="1" max="4" step="0.01" value="2"><output id="slopeKOut">2.00</output></label>
+    <div class="readout" id="slopeOut"></div>
+    <figcaption class="fig-cap">Any curve that bends downward and climbs from D to 3D must start at least as steep as the straight chord. Change the bend and watch: the green start line is never flatter than the dashed chord.</figcaption>
+  </figure>
+
+  <h3>Step 2: walk up the diagonal</h3>
+  <p>To get from \(P(a-1, a-1)\) to \(P(a, a)\), take two steps:</p>
+  <ul class="plain">
+    <li>From \((a-1, a-1)\) to \((a-1, a)\). This is the first step after the diagonal in row \(a - 1\). By Step 1, it is at least \(H_{a-1}\).</li>
+    <li>From \((a-1, a)\) to \((a, a)\). By rule S, this equals the step from \((a, a-1)\) to \((a, a)\). That step comes just before the first step after the diagonal in row \(a\). By rule C, a step is never smaller than the step after it. So it is at least \(H_a\).</li>
+  </ul>
+  \[ D_a - D_{a-1} \;\ge\; H_{a-1} + H_a. \]
+  <p>In words: each diagonal step gains about \(2 \times \frac{2D_a}{3a} = \frac{4}{3}\cdot\frac{D_a}{a}\). That is the source of the <strong>4/3</strong>: two directions (the 2) times the tripling slope (the \(2/3\)).</p>
+
+  <h3>Step 3: from 4/3 per step to \(a^{4/3}\)</h3>
+  <p>First, a quick check of why this means \(a^{4/3}\). Suppose \(D_a = a^{4/3}\). Then \(D_{101}/D_{100} = (1.01)^{4/3} \approx 1.0133\). So the step from 100 to 101 gains about \(0.0133\cdot D_{100}\), which is \(\frac{4/3}{100}\cdot D_{100}\). That matches \(\frac{4}{3}\cdot\frac{D_a}{a}\). Now the exact argument. It uses only algebra:</p>
+  <ol class="plain">
+    <li>Put \(D_a = \frac{3a-1}{2}H_a\) into the step inequality and collect terms. You get \(H_a \ge \big(1 + \frac{1}{3(a-1)}\big)H_{a-1}\).</li>
+    <li>Start from \(D_1 = P(1,1) = 1\), so \(H_1 = 1\). Repeat the step: \(H_a \ge \big(1 + \frac{1}{3}\big)\big(1 + \frac{1}{6}\big)\cdots\big(1 + \frac{1}{3(a-1)}\big)\).</li>
+    <li>Expand a cube: \(\big(1 + \frac{1}{3m}\big)^3 = 1 + \frac1m + \frac{1}{3m^2} + \frac{1}{27m^3} \ge 1 + \frac1m = \frac{m+1}{m}\).</li>
+    <li>So \(H_a^3 \ge \frac21\cdot\frac32\cdot\frac43\cdots\frac{a}{a-1} = a\), because everything cancels except \(a\). So \(H_a \ge a^{1/3}\).</li>
+    <li>Finally, \(D_a = \frac{3a-1}{2}H_a \ge a\cdot a^{1/3}\), because \(\frac{3a-1}{2} \ge a\).</li>
+  </ol>
+  \[ P(a, a) \;\ge\; a^{4/3} \quad\text{for every } a. \]
+
+  <figure class="fig">
+    <div class="fig-title"><span>The floor, step by step</span></div>
+    <canvas id="grow" height="240" aria-label="Lowest possible diagonal scores"></canvas>
+    <label class="slider" style="margin-top:8px"><span>up to a =</span><input type="range" id="growA" min="5" max="60" step="1" value="20"><output id="growAOut">20</output></label>
+    <div class="scroll-x" style="margin-top:8px"><table class="vals" id="growTable"></table></div>
+    <figcaption class="fig-cap">Green dots: the lowest diagonal values that these steps allow. Gold curve: a<sup>4/3</sup>. Grey line: a, for comparison. The dots always stay above the gold curve.</figcaption>
+  </figure>
+
+    <h3>Step 4: squeeze</h3>
+  <p>Now bring in rule U with \(b = a\):</p>
+  \[ a^{4/3} \;\le\; P(a,a) \;\le\; (2a - 1)^{1/t}. \]
+  <p>The left side grows like \(a^{4/3}\). The right side grows like \(a^{1/t}\). If \(1/t\) were smaller than \(4/3\), the left side would win for large \(a\). That would be a contradiction. Try it:</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>Floor versus ceiling</span><span>log scale</span></div>
+    <canvas id="sq" height="280" aria-label="Floor and ceiling curves"></canvas>
+    <label class="slider" style="margin-top:8px"><span>meter level t</span><input type="range" id="sqT" min="0.6" max="1" step="0.005" value="0.85"><output id="sqTOut">0.850</output></label>
+    <div class="readout" id="sqOut" aria-live="polite"></div>
+    <figcaption class="fig-cap">The curve shows how many times bigger the ceiling (2a &minus; 1)<sup>1/t</sup> is than the floor a<sup>4/3</sup>, on a log scale. Above the dashed line, all is fine. Below it, the floor would be above the ceiling, so that meter cannot exist.</figcaption>
+  </figure>
+
+  <p>So every meter has \(1/t \ge 4/3\), which means \(t \le 3/4\). Every meter scores matrix multiplication at</p>
+  \[ \lambda(\MM(n)) = n^{3t} \le n^{3\cdot 3/4} = n^{9/4}. \]
+  <p>By Strassen&rsquo;s bridge:</p>
+  <p class="reveal94">&omega; &le; 9/4</p>
+  <p>What does this give in practice? Strassen&rsquo;s bridge, in the form the paper proves, says: for any tiny \(\varepsilon\), there is some block size \(u\) and a recipe for \(u \times u\) matrices with fewer than \(u^{9/4+\varepsilon}\) products. The recursion rule from Chapter 2 turns that recipe into a method with about \(n^{9/4+\varepsilon}\) steps. Nobody knows \(u\) or the recipe.</p>
+
+  <div class="quiz" data-quiz="q11"></div>
+</section>
+
+<!-- ================================================================ 11 -->
+<section class="chapter" id="anatomy" data-title="Anatomy of 9/4" data-num="11">
+  <p class="chapnum">Chapter 11</p>
+  <h2>The anatomy of 9/4</h2>
+  <p>Every part of the number now has a meaning:</p>
+  \[ \omega \;\le\; 3 \times \frac{\text{ceiling growth}}{\text{floor growth}} \;=\; 3 \times \frac{1}{4/3} \;=\; \frac{9}{4}. \]
+  <div class="decoder">
+    <div class="piece"><div class="v lx">3</div><div class="d">Matrix multiplication is three dot products, one per pair of legs (Chapter 3).</div></div>
+    <div class="piece"><div class="v ly">1</div><div class="d">Multiplying polynomials costs \(2a - 1\): a straight line (Chapter 4).</div></div>
+    <div class="piece"><div class="v lz">2</div><div class="d">Each diagonal step moves in both \(a\) and \(b\) (Chapter 10).</div></div>
+    <div class="piece"><div class="v lo">2/3</div><div class="d">Tripling gains 2 extra copies over about \(3a\) steps (Chapter 9).</div></div>
+  </div>
+  <p>The floor growth is \(2 \times 2/3 = 4/3\). The tax of \(a - 1\) in rule T is what makes the tripling slope \(2/3\). Here is a thought experiment (it is not in the paper). Suppose the tax were \(\tau a\) for some number \(\tau\). Then the same steps would give a floor growth of \(4/(2+\tau)\) and a bound of \(\omega \le 3(2 + \tau)/4\).</p>
+
+  <figure class="fig">
+    <div class="fig-title"><span>What if the tax were different?</span></div>
+    <div id="taxScale"></div>
+    <label class="slider" style="margin-top:8px"><span>tax &tau;</span><input type="range" id="taxT" min="0" max="2" step="0.01" value="1"><output id="taxTOut">1.00</output></label>
+    <div class="readout" id="taxOut"></div>
+    <figcaption class="fig-cap">The real rule T has &tau; = 1. A tax of 2/3 would give &omega; &le; 2. A smaller tax would give a bound below 2, which is impossible. So no tripling rule with such a small tax can be true.</figcaption>
+  </figure>
+
+  <div class="quiz" data-quiz="q12"></div>
+
+  <h3>Test the rules yourself</h3>
+  <p>The five rules are strong. Below, three candidate score tables are checked against all five rules for many values of \(a\) and \(b\).</p>
+  <figure class="fig">
+    <div class="fig-title"><span>Rule checker</span></div>
+    <div class="row" id="rcBtns">
+      <button class="btn small" data-prof="rank" aria-pressed="true">Naive: a + b &minus; 1</button>
+      <button class="btn small" data-prof="flat" aria-pressed="false">Flattening meter</button>
+      <button class="btn small" data-prof="star" aria-pressed="false">Extremal P*</button>
+    </div>
+    <div class="readout" id="rcOut" style="margin-top:10px"></div>
+    <div class="scroll-x" style="margin-top:10px"><table class="vals" id="rcHeat"></table></div>
+  </figure>
+  <ul class="plain">
+    <li><strong>Naive guess.</strong> \(P = a + b - 1\) is what a meter of level \(t = 1\) would need (the school method). It breaks rule T already at \(a = 2, h = 1\): \(P(2, 4) = 5\) but \(3P(2, 1) = 6\). So no meter can have this table as its score. (To rule out every meter of level 1, you still need the full squeeze.)</li>
+    <li><strong>Flattening meter.</strong> A real meter with \(p_X = 0, p_Y = p_Z = 1\), so \(t = 2/3\). On \(\Poly(a,b)\), its three versions (one per leg) count \(a\), \(b\) and \(a+b-1\). Its averaged score (from the fine print in Chapter 6) is the square root of their product, \(\sqrt{ab(a+b-1)}\). It passes every rule, as it must.</li>
+    <li><strong>Extremal P*.</strong> A score table found after the paper by independent researchers. It passes all five rules with \(1/t = 4/3\). Its diagonal values are exactly the green dots of Chapter 10, the lowest values that the steps allow. So these five rules alone can never prove anything better than 9/4. (This table comes from community work after the paper. It is not part of the paper.)</li>
+  </ul>
+</section>
+
+<!-- ================================================================ 12 -->
+<section class="chapter" id="end" data-title="The full picture" data-num="12">
+  <p class="chapnum">Chapter 12</p>
+  <h2>The full picture</h2>
+  <div class="mapflow">
+    <div class="node"><b>Goal.</b> Show \(\omega \le 9/4\).</div>
+    <div class="arrow">&darr;</div>
+    <div class="node"><b>Strassen&rsquo;s bridge.</b> It is enough to show that every meter has level \(t \le 3/4\), because \(\lambda(\MM(n)) = n^{3t}\).</div>
+    <div class="arrow">&darr;</div>
+    <div class="node"><b>Point the meter at polynomials.</b> Score \(P(a,b)\) of \(\Poly(a,b)\).</div>
+    <div class="arrow">&darr;</div>
+    <div class="split">
+      <div class="node"><b>Ceiling.</b> Evaluation trick: rank \(2a-1\), so \(P(a,a) \le (2a-1)^{1/t}\).</div>
+      <div class="node"><b>Floor.</b> Shared-leg machine &rarr; rules C and T &rarr; \(P(a,a) \ge a^{4/3}\).</div>
+    </div>
+    <div class="arrow">&darr;</div>
+    <div class="node"><b>Squeeze.</b> \(a^{4/3} \le (2a-1)^{1/t}\) for all \(a\), so \(t \le 3/4\).</div>
+    <div class="arrow">&darr;</div>
+    <div class="node final"><b>Result.</b> \(\omega \le 3 \cdot \tfrac34 = \tfrac94\).</div>
+  </div>
+  <p>Now go back to the five steps at the top of the page. Each one should make sense.</p>
+
+  <h3>What the result does and does not give</h3>
+  <ul class="plain">
+    <li><strong>No recipe in hand.</strong> The proof shows that fast recipes exist for some huge block size. It does not write one down, and their hidden constants are probably enormous. Your computer will not get faster tomorrow.</li>
+    <li><strong>Checked by computer.</strong> The OpenAI repository includes a formal proof in Lean (a computer proof checker) of the statement \(\omega \le 9/4\) over the complex numbers. As of October 2026, the paper has not gone through peer review. Community projects on GitHub report that they rebuilt the Lean proof independently, and that they extended the result to other number systems. These are also unreviewed.</li>
+    <li><strong>Where next.</strong> Since 2 is the floor, the gap is now between 2 and 2.25. The extremal table P* shows that new rules are needed to go further.</li>
+  </ul>
+
+  <h3>Sources</h3>
+  <ul class="plain endnote">
+    <li>OpenAI, <a href="https://github.com/openai/math/blob/main/preprints/Matrix-Multiplication-Nine-Fourths-October-2-2026/paper.pdf">An Upper Bound of 9/4 for the Matrix Multiplication Exponent</a> (October 2, 2026). This page follows its argument closely.</li>
+    <li><a href="https://github.com/openai/math">openai/math</a>, entry 107 and its Lean formalization notes.</li>
+    <li>The extremal table P*: <a href="https://github.com/acprk/openai-math-followups">acprk/openai-math-followups</a> (community work, not peer reviewed).</li>
+    <li>Community Lean checks and extensions: <a href="https://github.com/erenciracioglu-dotcom/openai-math-9-4-lean-check">erenciracioglu-dotcom/openai-math-9-4-lean-check</a>, <a href="https://github.com/selanavot/matrix-multiplication-all-fields">selanavot/matrix-multiplication-all-fields</a>.</li>
+    <li>V. Strassen, Gaussian elimination is not optimal (1969); The asymptotic spectrum of tensors (1988). D. Bini et al. (1979) on approximate algorithms.</li>
+    <li>Record values for &omega; before 2026 come from the published papers listed in the paper&rsquo;s introduction.</li>
+  </ul>
+  <div class="footer">
+    <p>Built as a teaching companion. The simplifications on this page (balanced meters, equal-size pieces in the main text) are marked, and each one is removed in the paper.</p>
+  </div>
+</section>
+
+</main>
+<script src="app.js"></script>
+</body>
+</html>
