@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Where 9/4 Comes From</title>
 <meta name="description" content="An interactive, high-school-level walk through the 2026 proof that the matrix multiplication exponent is at most 9/4.">
-<meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#10131c" media="(prefers-color-scheme: dark)">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230b7a61%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Georgia,serif%22%3E%CF%89%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1f1e1c" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23c2603c%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%23faf9f5%22 font-family=%22Georgia,serif%22%3E%CF%89%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=Instrument+Sans:wght@400..600&display=swap">
 <link rel="stylesheet" href="style.css">
 <script>
 window.MathJax = {
@@ -350,9 +350,9 @@ window.MathJax = {
 
   <figure class="fig">
     <div class="fig-title"><span>Meter dials (imaginary meters)</span></div>
-    <label class="slider"><span class="lx">p_X</span><input type="range" id="pX" min="0" max="1" step="0.01" value="0.9"><output id="pXOut">0.90</output></label>
-    <label class="slider"><span class="ly">p_Y</span><input type="range" id="pY" min="0" max="1" step="0.01" value="0.85"><output id="pYOut">0.85</output></label>
-    <label class="slider"><span class="lz">p_Z</span><input type="range" id="pZ" min="0" max="1" step="0.01" value="0.8"><output id="pZOut">0.80</output></label>
+    <label class="slider"><span class="lx">p<sub>X</sub></span><input type="range" id="pX" min="0" max="1" step="0.01" value="0.9"><output id="pXOut">0.90</output></label>
+    <label class="slider"><span class="ly">p<sub>Y</sub></span><input type="range" id="pY" min="0" max="1" step="0.01" value="0.85"><output id="pYOut">0.85</output></label>
+    <label class="slider"><span class="lz">p<sub>Z</sub></span><input type="range" id="pZ" min="0" max="1" step="0.01" value="0.8"><output id="pZOut">0.80</output></label>
     <div id="meterScale" style="margin-top:6px"></div>
     <div class="readout" id="meterOut"></div>
     <div class="row" style="margin-top:10px">
@@ -414,7 +414,8 @@ window.MathJax = {
   <p>Suppose a task splits into pieces \(A_1, A_2, \ldots, A_M\). Each piece has its own Y variables and its own Z variables. But all the pieces <strong>share the same X variables</strong>. If the X variables were separate too, the pieces would be side by side, and rule 2 would say: the meter adds them up. With a shared leg, no rule applies. The pieces compete for the same X variables, and the meter could score the whole far below the sum.</p>
   <p>Here is a small example. \(\Dot(M)\) is \(M\) single products that share one x. If the x&rsquo;s were separate, the meter would read \(M\). With the shared x, it reads only \(M^t\), which is less than \(M\) when \(t < 1\). So in \(\lambda\), a shared leg costs something. Now look at the rescaled score: \(P(\Dot(M)) = M\), which is exactly the sum of the scores of \(M\) single products. The machine below shows that the same thing happens for every task with a shared leg.</p>
   <p>The paper builds a machine that fixes this. It takes \(5M\) copies of the task and produces \(M\) pieces that are fully separate. And each piece comes with a free bonus: an extra dot product of length \(M\).</p>
-  \[ 5M \text{ copies of } A \;\leadsto\; \big(A_1 \otimes \Dot(M)\big) \oplus \big(A_2 \otimes \Dot(M)\big) \oplus \cdots \oplus \big(A_M \otimes \Dot(M)\big). \]
+  \[ 5M \text{ copies of } A \;\leadsto\; \bigoplus_{h=1}^{M} \big(A_h \otimes \Dot(M)\big). \]
+  <p>The big \(\bigoplus\) works like \(\sum\): it puts the \(M\) pieces side by side, for \(h = 1\) to \(M\).</p>
   <p>The machine has two parts: a clock filter and a squish with clever weights.</p>
 
   <h3>Part 1: the clock filter</h3>

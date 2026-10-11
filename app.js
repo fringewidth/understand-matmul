@@ -8,7 +8,7 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const C = {};
-  const TOKENS = ['bg', 'panel', 'panel2', 'fg', 'muted', 'rule', 'X', 'Y', 'Z', 'omega', 'good', 'bad',
+  const TOKENS = ['bg', 'panel', 'panel2', 'paper', 'fg', 'muted', 'rule', 'X', 'Y', 'Z', 'omega', 'good', 'bad',
     'X-soft', 'Y-soft', 'Z-soft', 'omega-soft'];
   function readColors() {
     const cs = getComputedStyle(document.documentElement);
@@ -60,8 +60,8 @@
     }
     return color;
   }
-  const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
-  const DISPLAY = '"Bricolage Grotesque", system-ui, sans-serif';
+  const MONO = '"Instrument Sans", "Helvetica Neue", system-ui, sans-serif';
+  const DISPLAY = '"Source Serif 4", Georgia, serif';
   function font(px, fam, weight) { return `${weight || 500} ${px}px ${fam || MONO}`; }
   function fmtInt(n) { return Math.round(n).toLocaleString('en-US'); }
   function fmtNum(x, d) { return Number(x).toFixed(d === undefined ? 2 : d); }
@@ -283,7 +283,7 @@
     for (let i = 1; i < RECORDS.length; i++) d += ` H ${X(RECORDS[i].x)} V ${Y(RECORDS[i].w)}`;
     d += ` H ${X(x1)}`;
     const g = svgEl('g', { 'clip-path': 'url(#rcClip)' }, svg);
-    svgEl('path', { d, fill: 'none', stroke: C.fg, 'stroke-width': 1.8, 'stroke-linejoin': 'round' }, g);
+    svgEl('path', { d, fill: 'none', stroke: C.fg, 'stroke-width': 1.4, 'stroke-linejoin': 'round' }, g);
     RECORDS.forEach((r, i) => {
       if (r.x < x0 || r.x > x1) return;
       const sel = i === rc.sel;
@@ -538,12 +538,12 @@
         ctx.fillStyle = base; ctx.fill();
         ctx.fillStyle = light > 0.8 ? withAlpha('#ffffff', (light - 0.8) * 0.9) : withAlpha('#000000', (0.8 - light) * 0.75);
         ctx.fill();
-        ctx.strokeStyle = withAlpha('#000000', 0.25); ctx.lineWidth = 0.7; ctx.stroke();
+        ctx.strokeStyle = withAlpha('#000000', 0.14); ctx.lineWidth = 0.6; ctx.stroke();
       });
     });
     axisLabels.forEach(([lab, col, x, y]) => {
-      ctx.font = font(13, DISPLAY, 700); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.lineWidth = 4; ctx.strokeStyle = C.panel; ctx.strokeText(lab, x, y);
+      ctx.font = `italic 500 16px ${DISPLAY}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 4; ctx.strokeStyle = C.paper; ctx.strokeText(lab, x, y);
       ctx.fillStyle = col; ctx.fillText(lab, x, y);
     });
     $('#cubeInfo').innerHTML = CUBE_INFO[cube.preset];
