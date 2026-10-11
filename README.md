@@ -2,7 +2,7 @@
 
 An interactive web page that explains, at a high school level, where the number 9/4 comes from in OpenAI's October 2026 proof that the matrix multiplication exponent satisfies omega <= 9/4.
 
-Live page: https://fringewidth.github.io/understand-matmul/
+Live page: https://hrishik.me/understand-matmul/
 
 ## What the page covers
 
